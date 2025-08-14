@@ -1,6 +1,13 @@
 const express = require('express')
-const Joi = require('joi')
+const mongoose = require("mongoose")
 const genres = require("./routes/genres")
+require("dotenv").config()
+
+const uri = process.env.MONGOSTRING
+
+mongoose.connect(uri)
+        .then(c => console.log("MongoDB connection success.."))
+        .catch(e => console.log("MongoDB connection failed", e.message))
 
 const app = express()
 
