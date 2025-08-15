@@ -22,14 +22,6 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         phone: req.body.phone
     })
-const validate = (customer) => {
-    const schema = {
-        "name": Joi.string().min(3).required(),
-        "phone": Joi.string().min(10).required()
-    }
-    return Joi.validate(customer, schema)
-}
-
     const savedCustomer = await customer.save()
     res.status(201).send(savedCustomer)
 })
