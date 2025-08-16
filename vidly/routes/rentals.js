@@ -1,4 +1,5 @@
 const express = require("express")
+const mongoose = require("mongoose")
 const { Rental, validate } = require("../model/rental")
 const { Customer } = require("../model/customer")
 const { Movie } = require("../model/movie")
@@ -20,7 +21,7 @@ router.post("/", async (req, res) => {
     const movie = await Movie.findById(req.body.customerId)
     if (!movie) return res.status(400).send("The given movie ID is invalid!")
 
-    if(movie.numberInStock === 0) return res.status(400).send("Movie not in stock")
+    if (movie.numberInStock === 0) return res.status(400).send("Movie not in stock")
 
     const rental = new Rental({
         customer: {
@@ -36,16 +37,33 @@ router.post("/", async (req, res) => {
         }
     })
 
-    const savedRental = await rental.save()
-    movie.numberInStock--;
-    movie.save()
+    // new Fawn.Task()
+    //     .save('rentals', rental)
+    //     .update('movies', {_id: movie._id}, {$inc: {numberInStock: -1}})
+    //     .run()
 
-    res.send(savedRental)
+    const session = await mongoose.startSession()
+    session.startTransaction()
+
+    try {
+        await rental.save({ session });
+
+        movie.numberInStock--;
+        await movie.save({ session });
+        await session.commitTransaction()
+        session.endSession();
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error(err)
+    }
+
+    res.send(rental)
 })
 
 router.get("/:id", async (req, res) => {
     const rental = await Rental.findById(req.params.id)
-    if(!rental) return res.status(404).send("The rental with the given ID was not found!")
+    if (!rental) return res.status(404).send("The rental with the given ID was not found!")
     res.send(rental)
 })
 
