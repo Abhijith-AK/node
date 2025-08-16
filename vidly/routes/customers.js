@@ -22,8 +22,8 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         phone: req.body.phone
     })
-    const savedCustomer = await customer.save()
-    res.status(201).send(savedCustomer)
+    await customer.save()
+    res.status(201).send(customer)
 })
 
 router.put('/:id', async (req, res) => {

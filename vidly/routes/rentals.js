@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
     const customer = await Customer.findById(req.body.customerId)
     if (!customer) return res.status(400).send("The given customer ID is invalid!")
 
-    const movie = await Movie.findById(req.body.customerId)
+    const movie = await Movie.findById(req.body.movieId)
     if (!movie) return res.status(400).send("The given movie ID is invalid!")
 
     if (movie.numberInStock === 0) return res.status(400).send("Movie not in stock")
@@ -52,13 +52,13 @@ router.post("/", async (req, res) => {
         await movie.save({ session });
         await session.commitTransaction()
         session.endSession();
+        res.send(rental)
     } catch (err) {
         await session.abortTransaction();
         session.endSession();
         console.error(err)
+        res.status(500).send("Something failed: " + err.message)
     }
-
-    res.send(rental)
 })
 
 router.get("/:id", async (req, res) => {

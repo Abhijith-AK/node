@@ -31,8 +31,8 @@ router.post('/', async (req, res) => {
         numberInStock: req.body.numberInStock,
         dailyRentalRate: req.body.dailyRentalRate
     })
-    const savedmovie = await movie.save()
-    res.status(201).send(savedmovie)
+    await movie.save()
+    res.status(201).send(movie)
 })
 
 router.put('/:id', async (req, res) => {

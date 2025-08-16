@@ -19,8 +19,8 @@ router.post('/', async (req, res) => {
     const genre = new Genre({
         name: req.body.name
     })
-    const savedGenre = await genre.save()
-    res.status(201).send(savedGenre)
+    await genre.save()
+    res.status(201).send(genre)
 })
 
 router.put('/:id', async (req, res) => {
