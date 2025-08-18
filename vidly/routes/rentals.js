@@ -1,5 +1,6 @@
 const express = require("express")
 const mongoose = require("mongoose")
+const _ = require("lodash")
 const { Rental, validate } = require("../model/rental")
 const { Customer } = require("../model/customer")
 const { Movie } = require("../model/movie")
@@ -24,17 +25,8 @@ router.post("/", async (req, res) => {
     if (movie.numberInStock === 0) return res.status(400).send("Movie not in stock")
 
     const rental = new Rental({
-        customer: {
-            _id: customer._id,
-            isGold: customer.isGold,
-            name: customer.name,
-            phone: customer.phone
-        },
-        movie: {
-            _id: movie._id,
-            dailyRentalRate: movie.dailyRentalRate,
-            title: movie.title
-        }
+        customer: _.pick(customer, ["_id", "isGold", "name", "phone"]),
+        movie: _.pick(movie, ["_id", "dailyRentalRate", "title"])
     })
 
     // new Fawn.Task()
@@ -47,7 +39,6 @@ router.post("/", async (req, res) => {
 
     try {
         await rental.save({ session });
-
         movie.numberInStock--;
         await movie.save({ session });
         await session.commitTransaction()

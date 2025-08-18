@@ -1,4 +1,5 @@
 const express = require("express")
+const _ = require("lodash")
 const {Customer, validate} = require("../model/customer")
 
 const router = express.Router()
@@ -17,11 +18,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
-    const customer = new Customer({
-        isGold: req.body.isGold,
-        name: req.body.name,
-        phone: req.body.phone
-    })
+    const customer = new Customer (_.pick(req.body, ["isGold", "name", "phone"]))
     await customer.save()
     res.status(201).send(customer)
 })
@@ -30,11 +27,7 @@ router.put('/:id', async (req, res) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
     const customer = await Customer.findByIdAndUpdate(req.params.id,
-        {
-            name: req.body.name,
-            isGold: req.body.isGold,
-            phone: req.body.phone
-        },
+        _.pick(req.body, ["isGold", "name", "phone"]),
         { new: true })
     if (!customer) return res.status(404).send("The customer with given id is not found!")
     return res.send(customer)
