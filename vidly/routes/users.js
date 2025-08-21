@@ -1,6 +1,7 @@
 const express = require("express")
 const {User, validate} = require("../model/user")
 const _ = require("lodash")
+const bcrypt = require("bcryptjs")
 
 const router = express.Router()
 
@@ -13,8 +14,14 @@ router.post("/", async (req, res) => {
 
     const user = new User(_.pick(req.body, ["name", "email", "password"]))
 
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(user.password, salt)
+
     await user.save()
-    res.send(_.pick(user, ["name", "email"]))
+
+    const token = user.generateToken()
+
+    res.header('x-auth-token', token).send(_.pick(user, ["name", "email"]))
 })
 
 module.exports = router
