@@ -2,10 +2,11 @@ const express = require("express")
 const {User} = require("../model/user")
 const Joi = require("joi")
 const bcrypt = require("bcryptjs")
+const asyncMiddleware = require("../middleware/async")
 
 const router = express.Router()
 
-router.post("/", async (req, res) => {
+router.post("/", asyncMiddleware( async (req, res) => {
     const {error} = validate(req.body)
     if(error) return res.status(400).send(error.details[0].message)
 
@@ -18,7 +19,7 @@ router.post("/", async (req, res) => {
     const token = user.generateToken()
 
     res.send(token)
-})
+}))
 
 
 const validate = (user) => {
